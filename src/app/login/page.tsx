@@ -65,6 +65,7 @@ export default function LoginPage() {
             console.error("Login catch block:", err);
             setError(err.message || "Invalid email or password");
         } finally {
+            // Trigger Vercel Rebuild
             setLoading(false);
         }
     };
