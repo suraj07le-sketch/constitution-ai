@@ -57,12 +57,16 @@ export async function middleware(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     const pathname = request.nextUrl.pathname;
 
+    console.log(`[Middleware] Path: ${pathname}, User: ${user ? user.email : "None"}`);
+
     // Redirection Logic
     if (pathname.startsWith("/chat") && !user) {
-        return NextResponse.redirect(new URL("/login", request.url));
+        console.log("[Middleware] No user for /chat, redirecting to /login");
+        return NextResponse.redirect(new URL("/login?error=auth_loop", request.url));
     }
 
     if (user && (pathname === "/login" || pathname === "/signup")) {
+        console.log(`[Middleware] User exists for ${pathname}, redirecting to /chat`);
         return NextResponse.redirect(new URL("/chat", request.url));
     }
 

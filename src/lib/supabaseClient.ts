@@ -1,16 +1,18 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
 const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
 const supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
 
 if (!supabaseUrl || !supabaseAnonKey) {
-    console.error("❌ Supabase environment variables are missing!");
+    if (typeof window !== 'undefined') {
+        console.error("❌ Supabase environment variables are missing! Check your .env.local file.");
+    }
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: false
-    }
-});
+// Ensure URL is a valid absolute URL to prevent "fetch failed"
+const validUrl = supabaseUrl.startsWith('http') ? supabaseUrl : `https://${supabaseUrl}`;
+
+export const supabase = createBrowserClient(
+    validUrl,
+    supabaseAnonKey
+);

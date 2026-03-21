@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SettingsProvider } from "@/components/SettingsProvider";
+import { CustomCursor } from "@/components/ui/CustomCursor";
+import { SmoothScrollProvider } from "@/components/ui/SmoothScrollProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,11 +46,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
-          <SettingsProvider>
-            {children}
-          </SettingsProvider>
-        </ThemeProvider>
+        <SmoothScrollProvider>
+          <CustomCursor />
+          <ThemeProvider>
+            <SettingsProvider>
+              {children}
+            </SettingsProvider>
+          </ThemeProvider>
+        </SmoothScrollProvider>
       </body>
     </html>
   );

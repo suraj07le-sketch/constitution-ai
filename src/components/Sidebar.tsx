@@ -19,6 +19,7 @@ interface SidebarProps {
     onScenarioChange: (value: Scenario) => void;
     onModeChange: (value: LearningMode) => void;
     onNewSession?: () => void;
+    onTopicClick?: (topic: string) => void;
 }
 
 const LANGUAGES: { code: LanguageCode; label: string }[] = [
@@ -35,7 +36,8 @@ export function Sidebar({
     mode,
     onScenarioChange,
     onModeChange,
-    onNewSession
+    onNewSession,
+    onTopicClick
 }: SidebarProps) {
     const { language, setLanguage, voiceSpeed, setVoiceSpeed } = useSettings();
     const t = useTranslation(language);
@@ -115,7 +117,7 @@ export function Sidebar({
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-8">
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-8" data-lenis-prevent>
 
                     {/* Knowledge Config - Moved from ChatHeader */}
                     <div className="space-y-6 px-1">
@@ -174,12 +176,19 @@ export function Sidebar({
                         </div>
 
                         {commonTopics.map((topic, i) => (
-                            <button key={i} className={`
-                                flex items-center gap-3 w-full p-3 rounded-xl
-                                text-sm font-medium text-slate-600 dark:text-zinc-400
-                                hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white
-                                transition-all group
-                            `}>
+                            <button
+                                key={i}
+                                onClick={() => {
+                                    onTopicClick?.(topic);
+                                    setIsOpen(false);
+                                }}
+                                className={`
+                                    flex items-center gap-3 w-full p-3 rounded-xl
+                                    text-sm font-medium text-slate-600 dark:text-zinc-400
+                                    hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white
+                                    transition-all group cursor-pointer
+                                `}
+                            >
                                 <MessageSquare className="w-4 h-4 flex-shrink-0 opacity-70 group-hover:opacity-100 group-hover:text-saffron" />
                                 <span className={`whitespace-nowrap overflow-hidden text-ellipsis transition-opacity duration-200`}>
                                     {topic}
@@ -202,7 +211,7 @@ export function Sidebar({
                             </span>
                         </Link>
 
-                        <button className={`
+                        <Link href="/" onClick={() => setIsOpen(false)} className={`
                             flex items-center gap-3 w-full p-3 rounded-xl
                             text-sm font-medium text-slate-600 dark:text-zinc-400
                             hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white
@@ -212,7 +221,7 @@ export function Sidebar({
                             <span className="whitespace-nowrap transition-opacity duration-200">
                                 {t.constitutionIndex}
                             </span>
-                        </button>
+                        </Link>
 
                         <button
                             onClick={async () => {

@@ -1,0 +1,9 @@
+﻿src/components/ui/SmoothScrollProvider.tsx(12,13): error TS2322: Type 'React.ReactNode' is not assignable to type 'import("C:/Users/sonka/OneDrive/Desktop/constitution-ai/node_modules/@studio-freight/react-lenis/node_modules/@types/react/index").ReactNode'.
+  Type 'bigint' is not assignable to type 'ReactNode'.
+src/components/ui/TiltCard.tsx(46,10): error TS2322: Type '{ children: Element; defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; suppressContentEditableWarning?: boolean | undefined; suppressHydrationWarning?: boolean | undefined; ... 274 more ...; className: string; }' is not assignable to type 'Omit<HTMLMotionProps<"div">, "ref">'.
+  Types of property 'onAnimationStart' are incompatible.
+    Type 'AnimationEventHandler<HTMLDivElement> | undefined' is not assignable to type '((definition: AnimationDefinition) => void) | undefined'.
+      Type 'AnimationEventHandler<HTMLDivElement>' is not assignable to type '(definition: AnimationDefinition) => void'.
+        Types of parameters 'event' and 'definition' are incompatible.
+          Type 'AnimationDefinition' is not assignable to type 'AnimationEvent<HTMLDivElement>'.
+            Type 'string' is not assignable to type 'AnimationEvent<HTMLDivElement>'.

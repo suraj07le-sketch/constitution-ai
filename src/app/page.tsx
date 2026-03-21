@@ -12,8 +12,9 @@ import {
 } from "lucide-react";
 import { useSettings } from "@/components/SettingsProvider";
 import { useTranslation } from "@/lib/translations";
-import { CustomCursor } from "@/components/CustomCursor";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { TiltCard } from "@/components/ui/TiltCard";
+import { SplineBackground } from "@/components/ui/SplineBackground";
 
 const features = [
   {
@@ -88,10 +89,10 @@ function StackedSection({ children, index }: { children: React.ReactNode, index:
   const blur = useTransform(scrollYProgress, [0, 0.5], ["blur(0px)", "blur(12px)"]);
 
   return (
-    <div ref={containerRef} className="relative h-screen sticky top-0 flex items-center justify-center overflow-hidden">
+    <div ref={containerRef} style={{ position: "relative" }} className="relative min-h-screen md:h-screen md:sticky top-0 flex items-center justify-center overflow-hidden py-12 md:py-0 w-full">
       <motion.div
         style={{ scale, opacity, filter: blur }}
-        className="relative w-full h-full flex items-center justify-center bg-background"
+        className="relative w-full h-full flex items-center justify-center bg-background px-4 sm:px-6 md:px-0"
       >
         {/* Section Start Indicator: Saffron dot with a pulsing outer ring - Only for index > 0 */}
         {index > 0 && (
@@ -146,13 +147,13 @@ export default function LandingPage() {
 
   return (
     <div className="bg-background text-foreground font-sans selection:bg-saffron/30 relative">
-      <CustomCursor />
 
-      {/* Background Gradients & Glows */}
+      {/* Background Gradients & 3D Spline Glows */}
+      <SplineBackground className="opacity-60 dark:opacity-40 mix-blend-screen" />
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-saffron/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-gold/10 blur-[120px] rounded-full" />
-        <div className="absolute top-[40%] left-[80%] w-[20%] h-[20%] bg-india-green/5 blur-[100px] rounded-full" />
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] md:w-[40%] h-[40%] bg-saffron/10 blur-[80px] md:blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] md:w-[40%] h-[40%] bg-gold/10 blur-[80px] md:blur-[120px] rounded-full" />
+        <div className="absolute top-[40%] left-[80%] w-[30%] md:w-[20%] h-[20%] bg-india-green/5 blur-[70px] md:blur-[100px] rounded-full" />
       </div>
 
       <header className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 py-4 md:py-5 md:px-16 container mx-auto bg-background/50 backdrop-blur-xl border-b border-black/5 dark:border-white/5">
@@ -160,12 +161,12 @@ export default function LandingPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="flex items-center gap-4"
+          className="flex items-center gap-3 md:gap-4"
         >
-          <div className="w-10 h-10 overflow-hidden flex items-center justify-center rounded-xl bg-gradient-to-br from-black/10 dark:from-white/10 to-black/5 dark:to-white/5 border border-black/10 dark:border-white/10">
+          <div className="w-8 h-8 md:w-10 md:h-10 overflow-hidden flex items-center justify-center rounded-lg md:rounded-xl bg-gradient-to-br from-black/10 dark:from-white/10 to-black/5 dark:to-white/5 border border-black/10 dark:border-white/10">
             <img src="/logo.png" alt="Samvidhan Logo" className="w-full h-full object-cover" />
           </div>
-          <span className="text-xl md:text-2xl font-bold tracking-tight text-foreground drop-shadow-md">
+          <span className="text-lg md:text-2xl font-bold tracking-tight text-foreground drop-shadow-md">
             {t.brandName}<span className="text-saffron">.ai</span>
           </span>
         </motion.div>
@@ -174,16 +175,16 @@ export default function LandingPage() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="flex items-center gap-4"
+          className="flex items-center gap-2 md:gap-4"
         >
           <ThemeToggle />
           <Link href="/login">
-            <Button variant="ghost" className="text-foreground font-bold px-6 rounded-full hover:bg-black/5 dark:hover:bg-white/5 hidden md:flex">
+            <Button variant="ghost" className="text-foreground font-bold px-4 md:px-6 rounded-full hover:bg-black/5 dark:hover:bg-white/5 hidden sm:flex">
               Login
             </Button>
           </Link>
           <Link href="/chat">
-            <Button className="bg-saffron hover:bg-gold text-black font-bold px-6 rounded-full transition-all shadow-lg hidden md:flex">
+            <Button className="bg-saffron hover:bg-gold text-black font-bold px-4 md:px-6 rounded-full transition-all shadow-lg text-xs md:text-sm">
               Get Started
             </Button>
           </Link>
@@ -205,7 +206,7 @@ export default function LandingPage() {
                 <span className="text-sm font-medium text-saffron tracking-wide uppercase">{t.landing.superIntelligence}</span>
               </motion.div>
 
-              <motion.h1 variants={fadeUp} className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-6">
+              <motion.h1 variants={fadeUp} className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-6">
                 {t.landing.heroTitlePart1} <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-saffron via-gold to-zinc-800 dark:to-white">Constitution</span>
                 <br />{t.landing.heroTitlePart2}
@@ -230,7 +231,7 @@ export default function LandingPage() {
               </motion.div>
             </motion.div>
 
-            <div className="relative h-[400px] lg:h-[600px] w-full flex items-center justify-center">
+            <div className="relative h-[300px] sm:h-[400px] lg:h-[600px] w-full flex items-center justify-center order-first lg:order-last">
               <div className="absolute inset-0 z-0">
                 <Earth />
               </div>
@@ -240,10 +241,10 @@ export default function LandingPage() {
 
         {/* Section 2: Pillars */}
         <StackedSection index={1}>
-          <section className="container mx-auto px-6 md:px-16 pt-40 pb-12">
+          <section className="container mx-auto px-6 md:px-16 pt-20 md:pt-40 pb-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
-                <h2 className="text-4xl md:text-6xl font-black text-foreground mb-8 leading-tight">
+                <h2 className="text-3xl md:text-6xl font-black text-foreground mb-8 leading-tight">
                   The Five Pillars of <span className="text-saffron">Our Republic</span>
                 </h2>
                 <div className="space-y-6">
@@ -270,10 +271,10 @@ export default function LandingPage() {
                   ))}
                 </div>
               </div>
-              <div className="relative flex items-center justify-center">
+              <div className="relative flex items-center justify-center hidden sm:flex">
                 <div className="w-full max-w-md aspect-square rounded-[3rem] bg-gradient-to-br from-black/10 dark:from-white/10 to-transparent border border-black/10 dark:border-white/10 p-2 overflow-hidden shadow-2xl flex items-center justify-center">
                   <div className="w-full h-full rounded-[2.8rem] bg-[#0a0a20] flex items-center justify-center">
-                    <Scale className="w-24 h-24 text-saffron animate-pulse" />
+                    <Scale className="w-16 md:w-24 h-16 md:h-24 text-saffron animate-pulse" />
                   </div>
                 </div>
               </div>
@@ -285,18 +286,20 @@ export default function LandingPage() {
         <StackedSection index={2}>
           <section className="container mx-auto px-6 md:px-16 pt-40 pb-12">
             <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">Precision <span className="text-saffron">Features</span></h2>
-              <p className="text-zinc-400 max-w-xl mx-auto">Advanced RAG architecture combining legal accuracy with modern AI capabilities.</p>
+              <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4">Precision <span className="text-saffron">Features</span></h2>
+              <p className="text-sm md:text-base text-zinc-400 max-w-xl mx-auto">Advanced RAG architecture combining legal accuracy with modern AI capabilities.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {features.map((f, i) => (
-                <div key={i} className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-6 rounded-3xl hover:border-saffron/40 transition-all group">
-                  <div className="w-12 h-12 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-saffron/10 transition-all">
-                    {f.icon}
+                <TiltCard key={i} className="h-full">
+                  <div className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-6 rounded-3xl hover:border-saffron/40 transition-all group h-full glass-card">
+                    <div className="w-12 h-12 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-saffron/10 transition-all">
+                      {f.icon}
+                    </div>
+                    <h4 className="font-bold text-foreground mb-2">{f.title}</h4>
+                    <p className="text-xs text-zinc-500 leading-relaxed">{f.description}</p>
                   </div>
-                  <h4 className="font-bold text-foreground mb-2">{f.title}</h4>
-                  <p className="text-xs text-zinc-500 leading-relaxed">{f.description}</p>
-                </div>
+                </TiltCard>
               ))}
             </div>
           </section>
@@ -306,7 +309,7 @@ export default function LandingPage() {
         <StackedSection index={3}>
           <section className="container mx-auto px-6 md:px-16 pt-32 pb-12">
             <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">Landmark <span className="text-saffron">Precedents</span></h2>
+              <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4">Landmark <span className="text-saffron">Precedents</span></h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
@@ -315,10 +318,12 @@ export default function LandingPage() {
                 { case: "S.R. Bommai", tag: "Secularism", color: "from-green-500/20" },
                 { case: "K.S. Puttaswamy", tag: "Right to Privacy", color: "from-purple-500/20" },
               ].map((item, i) => (
-                <div key={i} className={`bg-gradient-to-br ${item.color} to-black/[0.01] dark:to-white/[0.01] border border-black/10 dark:border-white/10 p-6 rounded-3xl hover:scale-[1.02] transition-all`}>
-                  <p className="text-[10px] font-black uppercase text-saffron mb-2">{item.tag}</p>
-                  <h4 className="font-bold text-foreground text-lg">{item.case}</h4>
-                </div>
+                <TiltCard key={i}>
+                  <div className={`bg-gradient-to-br ${item.color} to-black/[0.01] dark:to-white/[0.01] border border-black/10 dark:border-white/10 p-6 rounded-3xl hover:scale-[1.02] transition-all glass-card h-full`}>
+                    <p className="text-[10px] font-black uppercase text-saffron mb-2">{item.tag}</p>
+                    <h4 className="font-bold text-foreground text-lg">{item.case}</h4>
+                  </div>
+                </TiltCard>
               ))}
             </div>
           </section>
@@ -327,18 +332,18 @@ export default function LandingPage() {
         {/* Section 5: Metrics & FAQ */}
         <StackedSection index={4}>
           <section className="container mx-auto px-6 md:px-16 pt-32 pb-12 flex flex-col gap-12">
-            <div className="grid grid-cols-3 gap-4 bg-black/5 dark:bg-white/5 p-8 rounded-[2.5rem] border border-black/5 dark:border-white/5">
+            <div className="grid grid-cols-3 gap-2 md:gap-4 bg-black/5 dark:bg-white/5 p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-black/5 dark:border-white/5">
               <div className="text-center border-r border-black/5 dark:border-white/5">
-                <h3 className="text-4xl font-black text-foreground">400+</h3>
-                <p className="text-xs text-zinc-500 uppercase">Articles</p>
+                <h3 className="text-2xl md:text-4xl font-black text-foreground">400+</h3>
+                <p className="text-[10px] md:text-xs text-zinc-500 uppercase">Articles</p>
               </div>
               <div className="text-center border-r border-black/5 dark:border-white/5">
-                <h3 className="text-4xl font-black text-foreground">100%</h3>
-                <p className="text-xs text-zinc-500 uppercase">Accuracy</p>
+                <h3 className="text-2xl md:text-4xl font-black text-foreground">100%</h3>
+                <p className="text-[10px] md:text-xs text-zinc-500 uppercase">Accuracy</p>
               </div>
               <div className="text-center">
-                <h3 className="text-4xl font-black text-foreground">&lt;1s</h3>
-                <p className="text-xs text-zinc-500 uppercase">Latency</p>
+                <h3 className="text-2xl md:text-4xl font-black text-foreground">&lt;1s</h3>
+                <p className="text-[10px] md:text-xs text-zinc-500 uppercase">Latency</p>
               </div>
             </div>
             <div className="max-w-2xl mx-auto w-full space-y-3">
@@ -357,19 +362,19 @@ export default function LandingPage() {
         {/* Section 6: CTA & Footer */}
         <div className="relative h-screen bg-black flex flex-col justify-end">
           <section className="container mx-auto px-6 py-32 text-center">
-            <h2 className="text-6xl md:text-8xl font-black text-white mb-8">
-              Become Constitutional <span className="text-saffron italic">Expert.</span>
+            <h2 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8">
+              Become Constitutional <br className="hidden sm:block" /><span className="text-saffron italic">Expert.</span>
             </h2>
             <Link href="/chat">
-              <Button size="lg" className="h-20 bg-white text-black hover:bg-zinc-200 font-black text-2xl px-12 rounded-full transition-all flex items-center gap-4 mx-auto group">
+              <Button size="lg" className="h-16 md:h-20 bg-white text-black hover:bg-zinc-200 font-black text-lg md:text-2xl px-8 md:px-12 rounded-full transition-all flex items-center gap-4 mx-auto group">
                 Enter Samvidhan
-                <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
+                <ArrowRight className="w-6 h-6 md:w-8 md:h-8 group-hover:translate-x-2 transition-transform" />
               </Button>
             </Link>
           </section>
 
           <footer className="border-t border-white/10 bg-black/40 py-10 mt-auto">
-            <div className="container mx-auto px-6 flex justify-between items-center text-zinc-500 text-sm">
+            <div className="container mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-zinc-500 text-sm text-center sm:text-left">
               <div className="flex items-center gap-3">
                 <img src="/logo.png" className="w-8 h-8 border border-white/10 rounded" alt="logo" />
                 <span className="font-bold text-white uppercase tracking-tighter">Samvidhan.ai</span>

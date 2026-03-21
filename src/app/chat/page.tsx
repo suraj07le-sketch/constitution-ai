@@ -125,10 +125,17 @@ Ask me anything about the Constitution of India:
         }
     }, [t, messages.length]);
 
-    // Auto-scroll to bottom when messages change
+    // Smart auto-scroll to bottom when messages change during streaming
     useEffect(() => {
         if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            const container = scrollRef.current;
+            const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
+
+            // Only auto-scroll if user is already near the bottom
+            // This allows them to scroll up and read without being snapped back
+            if (isNearBottom) {
+                container.scrollTop = container.scrollHeight;
+            }
         }
     }, [messages]);
 
@@ -159,7 +166,7 @@ Ask me anything about the Constitution of India:
             try {
                 console.log(`[Chat] Querying: "${question.substring(0, 50)}..."`);
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s total timeout
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s total timeout (buffered response)
 
                 const res = await fetch("/api/ask", {
                     method: "POST",
@@ -172,7 +179,11 @@ Ask me anything about the Constitution of India:
                 if (!res.ok) {
                     const errData = await res.json().catch(() => ({}));
                     console.error("[Chat] Server rejected request:", res.status, errData);
-                    throw new Error(errData.error || `Server responded with status ${res.status}. Please try again.`);
+                    const errMsg = errData.error || "";
+                    if (res.status === 429 || errMsg.includes("Rate limit") || errMsg.includes("429")) {
+                        throw new Error("⏳ Rate limit reached. The free AI model allows limited requests per minute. Please wait 30 seconds and try again.");
+                    }
+                    throw new Error(errMsg || `Server responded with status ${res.status}. Please try again.`);
                 }
 
                 console.log("[Chat] Stream connected successfully.");
@@ -224,7 +235,7 @@ Ask me anything about the Constitution of India:
 
                 if (err instanceof Error) {
                     if (err.name === 'AbortError') {
-                        errorMessage = "⏱️ Request Timed Out (90s). The AI service is currently slow, please try a shorter question or try again in a moment.";
+                        errorMessage = "⏱️ Request Timed Out (120s). The AI service is currently slow, please try a shorter question or try again in a moment.";
                     } else {
                         errorMessage = err.message;
                     }
@@ -315,7 +326,7 @@ Ask me anything about the Constitution of India:
     ];
 
     return (
-        <div className="h-[100dvh] flex flex-row bg-slate-50 dark:bg-[#050510] text-slate-900 dark:text-foreground overflow-hidden font-sans selection:bg-saffron/30 relative transition-colors duration-500">
+        <div className="h-[100dvh] flex flex-row bg-slate-50 dark:bg-[#050510] text-slate-900 dark:text-foreground overflow-hidden font-sans selection:bg-saffron/30 relative transition-colors duration-500" data-lenis-prevent>
             {/* Sidebar Component */}
             <Sidebar
                 isOpen={isSidebarOpen}
@@ -325,6 +336,7 @@ Ask me anything about the Constitution of India:
                 onScenarioChange={setScenario}
                 onModeChange={setMode}
                 onNewSession={handleNewSession}
+                onTopicClick={(topic) => handleSubmit(topic)}
             />
 
             {/* Main Content Area */}
@@ -337,9 +349,9 @@ Ask me anything about the Constitution of India:
 
                 {/* Header - Fixed Height - Ultra Compact 28px/40px height */}
                 <header className="flex-shrink-0 bg-white/70 dark:bg-[#050510]/80 backdrop-blur-3xl border-b border-black/5 dark:border-white/5 relative z-20 transition-colors duration-500">
-                    <div className="w-full px-6 py-2 md:py-3 flex flex-col gap-6">
+                    <div className="w-full px-4 md:px-6 py-2 md:py-3 flex flex-col">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 md:gap-4">
                                 {/* Mobile Menu Toggle */}
                                 <button
                                     onClick={() => setIsSidebarOpen(true)}
@@ -348,30 +360,30 @@ Ask me anything about the Constitution of India:
                                     <Menu className="w-6 h-6" />
                                 </button>
 
-                                <Link href="/" className="flex items-center gap-4 group relative">
-                                    <div className="w-12 h-12 overflow-hidden flex items-center justify-center rounded-xl bg-white dark:bg-[#0a0a20] border border-black/10 dark:border-white/10 group-hover:border-saffron/50 transition-all duration-500 shadow-xl group-hover:shadow-saffron/20 relative z-10">
+                                <Link href="/" className="flex items-center gap-2 md:gap-4 group relative">
+                                    <div className="w-10 h-10 md:w-12 md:h-12 overflow-hidden flex items-center justify-center rounded-xl bg-white dark:bg-[#0a0a20] border border-black/10 dark:border-white/10 group-hover:border-saffron/50 transition-all duration-500 shadow-xl group-hover:shadow-saffron/20 relative z-10">
                                         <img src="/logo.png" alt="Samvidhan Logo" className="w-[85%] h-[85%] object-cover group-hover:scale-110 transition-transform duration-500" />
                                     </div>
-                                    <div className="relative z-10 hidden sm:block">
-                                        <h1 className="font-black text-lg md:text-xl leading-tight text-slate-900 dark:text-white tracking-tighter">
+                                    <div className="relative z-10 hidden xs:block">
+                                        <h1 className="font-black text-sm md:text-xl leading-tight text-slate-900 dark:text-white tracking-tighter shrink-0">
                                             {t.brandName}<span className="text-saffron">.ai</span>
                                         </h1>
-                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-1">
+                                        <p className="text-[8px] md:text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-0.5 truncate max-w-[100px] md:max-w-none">
                                             {t.tagline}
                                         </p>
                                     </div>
                                 </Link>
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 md:gap-4">
                                 {ingestionStatus === "ready" ? null : ingestionStatus === "empty" ? (
-                                    <Button size="sm" onClick={handleIngest} className="h-10 px-6 text-[10px] uppercase font-black tracking-widest bg-saffron text-white hover:bg-gold transition-all rounded-xl shadow-lg shadow-saffron/20">
-                                        {t.initializeKnowledge}
+                                    <Button size="sm" onClick={handleIngest} className="h-9 md:h-10 px-3 md:px-6 text-[8px] md:text-[10px] uppercase font-black tracking-widest bg-saffron text-white hover:bg-gold transition-all rounded-xl shadow-lg shadow-saffron/20">
+                                        {t.brandName === "Samvidhan" ? "Initialize" : "आरंभ करें"}
                                     </Button>
                                 ) : ingestionStatus === "ingesting" ? (
-                                    <div className="flex items-center gap-3 bg-saffron/10 px-4 py-2 rounded-2xl border border-saffron/20 backdrop-blur-md">
-                                        <div className="w-3 h-3 border-2 border-saffron/30 border-t-saffron rounded-full animate-spin" />
-                                        <span className="text-[10px] font-black text-saffron uppercase tracking-[0.2em]">Ingesting...</span>
+                                    <div className="flex items-center gap-2 md:gap-3 bg-saffron/10 px-3 md:px-4 py-1.5 md:py-2 rounded-2xl border border-saffron/20 backdrop-blur-md">
+                                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 border-2 border-saffron/30 border-t-saffron rounded-full animate-spin" />
+                                        <span className="text-[8px] md:text-[10px] font-black text-saffron uppercase tracking-[0.2em]">...</span>
                                     </div>
                                 ) : null}
                             </div>
@@ -380,7 +392,7 @@ Ask me anything about the Constitution of India:
                 </header>
 
                 {/* Chat Area - Scrollable */}
-                <main className="flex-1 overflow-y-auto relative z-10 custom-scrollbar" ref={scrollRef}>
+                <main className="flex-1 min-h-0 overflow-y-auto relative z-10 custom-scrollbar" ref={scrollRef} data-lenis-prevent>
                     <div className="max-w-3xl mx-auto px-4 py-8 pb-40 space-y-6">
                         {messages.map((msg) => (
                             <ChatMessage
@@ -412,8 +424,8 @@ Ask me anything about the Constitution of India:
                 </main>
 
                 {/* Bottom Command Center - Overlays footer of scroll */}
-                <div className="command-center">
-                    <div className="max-w-3xl mx-auto flex items-end gap-3 md:gap-4 px-2">
+                <div className="command-center px-4 md:px-0">
+                    <div className="max-w-3xl mx-auto flex items-end gap-2 md:gap-4">
                         <VoiceButton
                             isListening={isListening}
                             isSupported={speechSupported}
@@ -422,12 +434,12 @@ Ask me anything about the Constitution of India:
 
                         <div className="flex-1 relative group">
                             {isListening && (
-                                <div className="absolute -top-10 left-4 text-xs font-bold text-saffron animate-pulse flex items-center gap-2 bg-saffron/10 px-3 py-1 rounded-full border border-saffron/20 backdrop-blur-md">
+                                <div className="absolute -top-10 left-4 text-[10px] md:text-xs font-bold text-saffron animate-pulse flex items-center gap-2 bg-saffron/10 px-3 py-1 rounded-full border border-saffron/20 backdrop-blur-md">
                                     <span className="relative flex h-2 w-2">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-saffron opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-saffron"></span>
                                     </span>
-                                    Voice Recognition Active...
+                                    Listening...
                                 </div>
                             )}
                             <div className="bg-white/90 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 backdrop-blur-xl rounded-2xl p-1 shadow-xl dark:shadow-2xl transition-all duration-300 focus-within:border-saffron/50 focus-within:bg-white dark:focus-within:bg-white/[0.05]">
@@ -438,20 +450,20 @@ Ask me anything about the Constitution of India:
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={handleKeyDown}
                                     placeholder={t.chatPlaceholder}
-                                    className="min-h-[50px] max-h-[160px] border-0 bg-transparent focus-visible:ring-0 text-sm md:text-base pr-12 py-3 resize-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-600"
+                                    className="min-h-[44px] md:min-h-[50px] max-h-[160px] border-0 bg-transparent focus-visible:ring-0 text-sm md:text-base pr-12 py-2.5 md:py-3 resize-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-600"
                                     rows={1}
                                 />
-                                <div className="absolute right-3 bottom-3 flex items-center gap-2">
+                                <div className="absolute right-2 md:right-3 bottom-2 md:bottom-3 flex items-center gap-2">
                                     <Button
                                         id="send-btn"
                                         onClick={() => handleSubmit()}
                                         disabled={isLoading || !input.trim()}
-                                        className="h-10 w-10 p-0 rounded-xl bg-gradient-to-br from-saffron to-gold text-black shadow-lg hover:scale-105 transition-transform disabled:opacity-30"
+                                        className="h-8 w-8 md:h-10 md:w-10 p-0 rounded-lg md:rounded-xl bg-gradient-to-br from-saffron to-gold text-black shadow-lg hover:scale-105 transition-transform disabled:opacity-30"
                                     >
                                         {isLoading ? (
-                                            <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                            <div className="w-3 h-3 md:w-4 md:h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                                         ) : (
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <svg className="w-4 h-4 md:w-[18px] md:h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="m22 2-7 20-4-9-9-4Z" />
                                                 <path d="M22 2 11 13" />
                                             </svg>
@@ -462,8 +474,8 @@ Ask me anything about the Constitution of India:
                         </div>
                     </div>
 
-                    <div className="max-w-3xl mx-auto mt-4 mb-2 text-center pb-safe">
-                        <p className="text-[10px] text-zinc-600 dark:text-zinc-500 uppercase tracking-[0.2em] font-medium">
+                    <div className="max-w-3xl mx-auto mt-2 md:mt-4 mb-2 text-center pb-safe">
+                        <p className="text-[8px] md:text-[10px] text-zinc-600 dark:text-zinc-500 uppercase tracking-[0.2em] font-medium truncate px-4">
                             {t.systemTag}
                         </p>
                     </div>

@@ -32,8 +32,9 @@ export async function POST(request: NextRequest) {
         console.log(`[Ask API] Original question: "${question.substring(0, 50)}..."`);
         const optimizationPrompt = `You are an AI search query optimization assistant.
 Your task is to convert the user's input into a precise, keyword-rich search query optimized for vector-database RAG search against the Constitution of India.
-Extract key legal terms, concepts, or article numbers. Ignore conversational filler.
-Respond ONLY with the optimized search phrase, nothing else.`;
+Extract key legal terms, concepts, or article numbers.
+IMPORTANT: If the user input is NOT in English, you MUST translate the core legal concepts to English to ensure high-quality matching against the English Constitution text.
+Respond ONLY with the optimized English search phrase, nothing else.`;
 
         let optimizedQuery = question;
         try {
@@ -97,9 +98,12 @@ Respond ONLY with the optimized search phrase, nothing else.`;
         const message = error instanceof Error ? error.message : "Unknown error";
         console.error("Ask error:", message);
 
+        // Forward rate limit errors properly
+        const isRateLimit = message.includes("429") || message.includes("Rate limit") || message.includes("rate limit");
+        
         return NextResponse.json(
-            { error: message },
-            { status: 500 }
+            { error: isRateLimit ? "429 Rate limit exceeded. Please wait 30 seconds and try again." : message },
+            { status: isRateLimit ? 429 : 500 }
         );
     }
 }

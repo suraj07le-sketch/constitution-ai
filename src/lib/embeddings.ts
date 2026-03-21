@@ -50,7 +50,7 @@ export async function createQueryEmbedding(
             model: "openai/text-embedding-3-small",
             input: query,
         }, {
-            timeout: 10000, // 10 second timeout
+            timeout: 20000, // 20 second timeout
         });
 
         if (!response.data?.[0]?.embedding) {
